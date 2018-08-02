@@ -119,7 +119,7 @@ public class CrawlerMain {
                     case 4:
                         printErrMessage("Saves only files to DB");
                         initApiDoAuth();
-                        CrawlingMethods.saveOnlyMediaToDB(api, dbStorage, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, MAX_DATE, MIN_DATE, FILES_LIMIT);
+                        CrawlingMethods.saveOnlyMediaToDB(api, dbStorage, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, MAX_DATE, MIN_DATE, FILES_LIMIT, MAX_FILE_SIZE);
                         break;
                     case 5:
                         printErrMessage("Saves only files to HDD");

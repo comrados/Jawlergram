@@ -7,6 +7,7 @@
 
 package com.crawlergram.crawler.apimethods;
 
+import com.crawlergram.db.DBStorage;
 import org.telegram.api.channel.TLChannelParticipants;
 import org.telegram.api.channel.participants.*;
 import org.telegram.api.chat.TLAbsChat;
@@ -55,6 +56,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+
+import static com.crawlergram.db.Constants.MSG_DIAL_PREF;
 
 public class DialogsHistoryMethods {
 
@@ -299,49 +302,74 @@ public class DialogsHistoryMethods {
      * @see TelegramApi
      * @see AbsApiState
      */
-    public static TLVector<TLAbsMessage> getWholeMessagesHistory(TelegramApi api,
-                                                                 TLDialog dialog,
-                                                                 Map<Integer, TLAbsChat> chatsHashMap,
-                                                                 Map<Integer, TLAbsUser> usersHashMap,
-                                                                 TLAbsMessage topMessage,
-                                                                 int limit, int maxDate, int minDate) {
+    public static TLVector<TLAbsMessage> getWholeMessageHistory(TelegramApi api, TLDialog dialog,
+                                                                Map<Integer, TLAbsChat> chatsHashMap,
+                                                                Map<Integer, TLAbsUser> usersHashMap,
+                                                                TLAbsMessage topMessage,
+                                                                int limit, int maxDate, int minDate) {
         TLVector<TLAbsMessage> messages = new TLVector<>();
         if (topMessage != null) {
             messages.add(topMessage);
         }
         Set<Integer> messageIdSet = new HashSet<>();
-        Integer offId = initOffsetsId(messages); // offset id
-        Integer offDate = initOffsetsDate(messages); // offset date
+        int offId = initOffsetsId(messages); // offset id
+        int offDate = initOffsetsDate(messages); // offset date
         int receivedMsgs = 0; // received messages
-        int iter = 0;
+        int iter = 1;
         System.out.println("Downloading messages");
         while (receivedMessagesCheck(receivedMsgs, limit)) {
+
             TLRequestMessagesGetHistory getHistory = SetTLObjectsMethods.getHistoryRequestSet(dialog, chatsHashMap, usersHashMap, 100, offDate, offId);
-            // try to get messages (in recursion), use 0 as initial depth
-            TLAbsMessages absMessages = (TLAbsMessages) sleepAndRequest(api, getHistory, 100, 0);
-            // if returns no messages -> break the loop
-            if (absMessages == null || absMessages.getMessages().isEmpty() || absMessages.getMessages() == null) { break; }
-            // update known users and chats hashmaps
-            insertIntoChatsHashMap(chatsHashMap, absMessages.getChats());
-            insertIntoUsersHashMap(usersHashMap, absMessages.getUsers());
-            // abstract messages
-            TLVector<TLAbsMessage> absMessagesVector = absMessages.getMessages();
-            // collect non-empty ones
-            getNonEmptyMessagesFromHistory(messages, absMessagesVector, messageIdSet);
-            messages = checkMinMaxDates(messages, maxDate, minDate);
-            receivedMsgs = messages.size();
-            // if returns number of messages less than the chunk size (100) - end of the chat -> break the loop
-            if (absMessagesVector.size() < 100) {break;}
-            // if the last returned message is out of min border of diapason - no need to continue;
-            if (isOutOfBounds(absMessagesVector.get(absMessagesVector.size()-1), minDate)){break;}
+            TLVector<TLAbsMessage> batch = getMessageHistoryIteration(api, getHistory, chatsHashMap, usersHashMap, messages, messageIdSet, maxDate, minDate);
+
+            if (batch == null) {break;}
             // offsets: id and date of last message
             offId = resetOffsetsId(messages.get(messages.size() - 1));
             offDate = resetOffsetsDate(messages.get(messages.size() - 1));
-
+            receivedMsgs = messages.size();
             // sleep once per 10 iterations for 1 sec
             iter = sleepOncePerNIters(iter, 10, receivedMsgs);
         }
-        return removeExtraMessages(messages, limit);
+        messages = removeExtraMessages(messages, limit);
+        System.out.println("Downloaded: " + messages.size());
+        return messages;
+    }
+
+    /**
+     * One iteration, returns 100 messages
+     *
+     * @param api api
+     * @param getHistory get history instance
+     * @param chatsHashMap chats
+     * @param usersHashMap users
+     * @param messages messages
+     * @param messageIdSet set of unique messages
+     * @param maxDate max date
+     * @param minDate min date
+     */
+    private static TLVector<TLAbsMessage> getMessageHistoryIteration(TelegramApi api, TLRequestMessagesGetHistory getHistory,
+                                                                Map<Integer, TLAbsChat> chatsHashMap,
+                                                                Map<Integer, TLAbsUser> usersHashMap, TLVector<TLAbsMessage> messages,
+                                                                Set<Integer> messageIdSet, int maxDate, int minDate){
+        // try to get messages (in recursion), use 0 as initial depth
+        TLAbsMessages absMessages = (TLAbsMessages) sleepAndRequest(api, getHistory, 100, 0);
+        // if returns no messages -> break the loop
+        if (absMessages == null || absMessages.getMessages().isEmpty() || absMessages.getMessages() == null) { return null; }
+        // update known users and chats hashmaps
+        insertIntoChatsHashMap(chatsHashMap, absMessages.getChats());
+        insertIntoUsersHashMap(usersHashMap, absMessages.getUsers());
+        // abstract messages
+        TLVector<TLAbsMessage> absMessagesVector = absMessages.getMessages();
+        // collect non-empty ones
+        TLVector<TLAbsMessage> batch = getNonEmptyMessagesFromHistory(messages, absMessagesVector, messageIdSet);
+        checkMinMaxDates(messages, maxDate, minDate);
+
+        // if returns number of messages less than the chunk size (100) - end of the chat -> break the loop
+        if (absMessagesVector.size() < 100) {return null;}
+        // if the last returned message is out of min border of diapason - no need to continue;
+        if (isOutOfBounds(absMessagesVector.get(absMessagesVector.size()-1), minDate)){return null;}
+
+        return batch;
     }
 
     /**
@@ -390,9 +418,9 @@ public class DialogsHistoryMethods {
     }
 
     private static int sleepOncePerNIters(int iter, int n, int receivedMsgs){
-        if (iter > n){
+        if (iter >= n){
             try {
-                iter = 0;
+                iter = 1;
                 System.out.println("Downloaded: " + (receivedMsgs));
                 Thread.sleep(1000);
             } catch (InterruptedException ignored) {}
@@ -468,7 +496,8 @@ public class DialogsHistoryMethods {
      * @param absMessagesVector input array (all messages)
      * @param messageIdSet set of unique message IDs (to exclude duplications when overlapping arrays are being merged)
      */
-    private static void getNonEmptyMessagesFromHistory(TLVector<TLAbsMessage> messages, TLVector<TLAbsMessage> absMessagesVector, Set<Integer> messageIdSet) {
+    private static TLVector<TLAbsMessage> getNonEmptyMessagesFromHistory(TLVector<TLAbsMessage> messages, TLVector<TLAbsMessage> absMessagesVector, Set<Integer> messageIdSet) {
+        TLVector<TLAbsMessage> out = new TLVector<>();
         for (TLAbsMessage absMessage: absMessagesVector){
             // message should not be TLMessageEmpty (-> TLMessage or TLMessageService)
             if (!(absMessage instanceof TLMessageEmpty)){
@@ -476,15 +505,18 @@ public class DialogsHistoryMethods {
                     if (!(messageIdSet.contains(((TLMessage) absMessage).getId()))){
                         messages.add(absMessage);
                         messageIdSet.add(((TLMessage) absMessage).getId());
+                        out.add(absMessage);
                     }
                 } else if (absMessage instanceof TLMessageService){
                     if (!(messageIdSet.contains(((TLMessageService) absMessage).getId()))){
                         messages.add(absMessage);
                         messageIdSet.add(((TLMessageService) absMessage).getId());
+                        out.add(absMessage);
                     }
                 }
             }
         }
+        return out;
     }
 
     /**
@@ -684,7 +716,7 @@ public class DialogsHistoryMethods {
         }
         int offset = 0;
         int retrieved = 0;
-        int iter = 0;
+        int iter = 1;
         System.out.println("Downloading participants");
         while (retrieved < limit) {
             // retrieve participants
@@ -784,13 +816,13 @@ public class DialogsHistoryMethods {
      * @see TelegramApi
      * @see AbsApiState
      */
-    public static TLVector<TLAbsMessage> getWholeMessagesHistoryWithExclusions(TelegramApi api,
-                                                                               TLDialog dialog,
-                                                                               Map<Integer, TLAbsChat> chatsHashMap,
-                                                                               Map<Integer, TLAbsUser> usersHashMap,
-                                                                               TLAbsMessage topMessage,
-                                                                               MessageHistoryExclusions exclusions,
-                                                                               int limit, int maxDate, int minDate) {
+    public static TLVector<TLAbsMessage> getWholeMessageHistoryWithExclusions(TelegramApi api,
+                                                                              TLDialog dialog,
+                                                                              Map<Integer, TLAbsChat> chatsHashMap,
+                                                                              Map<Integer, TLAbsUser> usersHashMap,
+                                                                              TLAbsMessage topMessage,
+                                                                              MessageHistoryExclusions exclusions,
+                                                                              int limit, int maxDate, int minDate) {
         if (limit <= 0) {
             limit = Integer.MAX_VALUE;
         }
@@ -804,14 +836,14 @@ public class DialogsHistoryMethods {
         }
         if (maxDate > exclusions.getMaxDate()){
             // part 1 (from maxDate to exclusions max)
-            messages1 = getWholeMessagesHistory(api,dialog,chatsHashMap, usersHashMap, topMessage, limit, maxDate, exclusions.getMaxDate());
+            messages1 = getWholeMessageHistory(api,dialog,chatsHashMap, usersHashMap, topMessage, limit, maxDate, exclusions.getMaxDate());
             messages1 = removeExistingMessages(messages1, exclusions.getMinId(), exclusions.getMaxId());
         }
         if (messages1.size() < limit) {
             // part 2 (exclusions min to min Date)
             TLAbsMessage newTopMsg = SetTLObjectsMethods.absMessageSetForOffsets(exclusions.getMinId(), exclusions.getMinDate());
             if (exclusions.getMinDate() > minDate){
-                messages2 = getWholeMessagesHistory(api,dialog,chatsHashMap, usersHashMap, newTopMsg, limit, exclusions.getMinDate(), minDate);
+                messages2 = getWholeMessageHistory(api,dialog,chatsHashMap, usersHashMap, newTopMsg, limit, exclusions.getMinDate(), minDate);
                 messages2 = removeExistingMessages(messages2, exclusions.getMinId(), exclusions.getMaxId());
             }
             messages = combineMessagesParts(messages1, messages2);

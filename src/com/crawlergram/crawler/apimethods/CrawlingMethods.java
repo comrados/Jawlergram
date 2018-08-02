@@ -8,7 +8,6 @@
 package com.crawlergram.crawler.apimethods;
 
 import com.crawlergram.crawler.output.ConsoleOutputMethods;
-import com.crawlergram.crawler.structures.CrawlerMaps;
 import org.telegram.api.chat.TLAbsChat;
 import org.telegram.api.dialog.TLDialog;
 import org.telegram.api.engine.TelegramApi;
@@ -66,9 +65,9 @@ public class CrawlingMethods {
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
             if (exclusions.exist()){
-                absMessages = DialogsHistoryMethods.getWholeMessagesHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
+                absMessages = DialogsHistoryMethods.getWholeMessageHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
             } else {
-                absMessages = DialogsHistoryMethods.getWholeMessagesHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
+                absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
             }
             // writes messages of the dialog to "messages + [dialog_id]" table/collection/etc.
             dbStorage.writeTLAbsMessages(absMessages, dialog);
@@ -113,7 +112,7 @@ public class CrawlingMethods {
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
-            absMessages = DialogsHistoryMethods.getWholeMessagesHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
+            absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
 
             if (filesCounter < maxFiles) {
                 for (TLAbsMessage absMessage : absMessages) {
@@ -146,7 +145,7 @@ public class CrawlingMethods {
                                           Map<Integer, TLAbsChat> chatsHashMap,
                                           Map<Integer, TLAbsUser> usersHashMap,
                                           Map<Integer, TLAbsMessage> messagesHashMap,
-                                          int msgLimit, int maxDate, int minDate, int maxFiles) {
+                                          int msgLimit, int maxDate, int minDate, int maxFiles, int maxSize) {
         int filesCounter = 0;
         for (TLDialog dialog : dialogs) {
 
@@ -160,14 +159,14 @@ public class CrawlingMethods {
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
             if (exclusions.exist()){
-                absMessages = DialogsHistoryMethods.getWholeMessagesHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
+                absMessages = DialogsHistoryMethods.getWholeMessageHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
             } else {
-                absMessages = DialogsHistoryMethods.getWholeMessagesHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
+                absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
             }
 
             if (filesCounter < maxFiles) {
                 for (TLAbsMessage absMessage : absMessages) {
-                    MediaDownloadMethods.messageDownloadMediaToDB(api, dbStorage, absMessage, maxDate);
+                    MediaDownloadMethods.messageDownloadMediaToDB(api, dbStorage, absMessage, maxSize);
                     filesCounter++;
                 }
             }
@@ -223,9 +222,9 @@ public class CrawlingMethods {
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
             if (exclusions.exist()){
-                absMessages = DialogsHistoryMethods.getWholeMessagesHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
+                absMessages = DialogsHistoryMethods.getWholeMessageHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
             } else {
-                absMessages = DialogsHistoryMethods.getWholeMessagesHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
+                absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
             }
 
             // writes messages of the dialog to "messages + [dialog_id]" table/collection/etc.
@@ -292,9 +291,9 @@ public class CrawlingMethods {
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
             if (exclusions.exist()){
-                absMessages = DialogsHistoryMethods.getWholeMessagesHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
+                absMessages = DialogsHistoryMethods.getWholeMessageHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
             } else {
-                absMessages = DialogsHistoryMethods.getWholeMessagesHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
+                absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
             }
 
             // writes messages of the dialog to "messages + [dialog_id]" table/collection/etc.
@@ -346,7 +345,7 @@ public class CrawlingMethods {
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
-            absMessages = DialogsHistoryMethods.getWholeMessagesHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
+            absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
 
             if (filesCounter < maxFiles){
                 for (TLAbsMessage absMessage: absMessages){
