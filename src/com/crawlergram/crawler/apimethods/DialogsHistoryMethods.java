@@ -7,7 +7,6 @@
 
 package com.crawlergram.crawler.apimethods;
 
-import com.crawlergram.db.DBStorage;
 import org.telegram.api.channel.TLChannelParticipants;
 import org.telegram.api.channel.participants.*;
 import org.telegram.api.chat.TLAbsChat;
@@ -56,8 +55,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
-
-import static com.crawlergram.db.Constants.MSG_DIAL_PREF;
 
 public class DialogsHistoryMethods {
 
