@@ -1,6 +1,3 @@
-import com.crawlergram.db.DBStorage;
-import com.crawlergram.db.MessageHistoryExclusions;
-import com.crawlergram.db.mongo.MongoDBStorage;
 import com.crawlergram.crawler.apicallback.ApiCallbackImplemented;
 import com.crawlergram.crawler.apimethods.AuthMethods;
 import com.crawlergram.crawler.apimethods.DialogsHistoryMethods;
@@ -80,11 +77,15 @@ public class VoiceMessagesExtractor {
         int filesCounter = 0;
         int maxFiles = 100;
 
-        if (filesCounter < maxFiles) {
+
             for (TLAbsMessage absMessage : absMessages) {
-                if(MediaDownloadMethods.messageDownloadVoiceMessagesToHDD(api, absMessage, 8*5*1024*1024, "files") != null) filesCounter++;;
+                if (filesCounter < maxFiles) {
+                    if(MediaDownloadMethods.messageDownloadVoiceMessagesToHDD(api, absMessage, 8*5*1024*1024, "files") != null) filesCounter++;
+                } else {
+                    break;
+                }
             }
-        }
+
 
 
         System.exit(0);

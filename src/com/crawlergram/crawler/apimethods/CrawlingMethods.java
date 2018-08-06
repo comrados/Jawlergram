@@ -26,17 +26,18 @@ public class CrawlingMethods {
 
     /**
      * Writes only messages to DB
-     * @param	api  TelegramApi instance for RPC request
-     * @param   dbStorage   database instance
-     * @param   dialogs dialogs TLVector
-     * @param   chatsHashMap    chats hashmap
-     * @param   usersHashMap    users hashmap
-     * @param   messagesHashMap top messages
-     * @param   msgLimit   maximum number of retrieved messages from each dialog (0 if all )
-     * @param   parLimit   maximum number of retrieved participants from each dialog (0 if all)
-     * @param   filter  participants filter: 0 - recent, 1 - admins, 2 - kicked, 3 - bots, default - recent
-     * @param   maxDate max date of diapason for saving
-     * @param   minDate min date of diapason for saving
+     *
+     * @param dbStorage       database instance
+     * @param dialogs         dialogs TLVector
+     * @param chatsHashMap    chats hashmap
+     * @param usersHashMap    users hashmap
+     * @param messagesHashMap top messages
+     * @param msgLimit        maximum number of retrieved messages from each dialog (0 if all )
+     * @param parLimit        maximum number of retrieved participants from each dialog (0 if all)
+     * @param filter          participants filter: 0 - recent, 1 - admins, 2 - kicked, 3 - bots, default - recent
+     * @param maxDate         max date of diapason for saving
+     * @param minDate         min date of diapason for saving
+     * @param api             TelegramApi instance for RPC request
      */
     public static void saveOnlyMessages(TelegramApi api, DBStorage dbStorage, TLVector<TLDialog> dialogs,
                                         Map<Integer, TLAbsChat> chatsHashMap,
@@ -64,7 +65,7 @@ public class CrawlingMethods {
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
-            if (exclusions.exist()){
+            if (exclusions.exist()) {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
             } else {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
@@ -73,7 +74,10 @@ public class CrawlingMethods {
             dbStorage.writeTLAbsMessages(absMessages, dialog);
 
             // sleep between transmissions to avoid flood wait
-            try {Thread.sleep(1000);} catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
         }
         // write hashmaps
         System.out.println("Writing obtained users chats, duplicates may occure");
@@ -85,16 +89,17 @@ public class CrawlingMethods {
 
     /**
      * Writes only messages to HDD
-     * @param	api  TelegramApi instance for RPC request
-     * @param   dialogs dialogs TLVector
-     * @param   chatsHashMap    chats hashmap
-     * @param   usersHashMap    users hashmap
-     * @param   messagesHashMap top messages
-     * @param   msgLimit   maximum number of retrieved messages from each dialog (0 if all )
-     * @param   maxDate max date of diapason for saving
-     * @param   minDate min date of diapason for saving
-     * @param   path    file system path
-     * @param   maxFiles maximum nuber of downloaded files
+     *
+     * @param dialogs         dialogs TLVector
+     * @param chatsHashMap    chats hashmap
+     * @param usersHashMap    users hashmap
+     * @param messagesHashMap top messages
+     * @param msgLimit        maximum number of retrieved messages from each dialog (0 if all )
+     * @param maxDate         max date of diapason for saving
+     * @param minDate         min date of diapason for saving
+     * @param path            file system path
+     * @param maxFiles        maximum nuber of downloaded files
+     * @param api             TelegramApi instance for RPC request
      */
     public static void saveOnlyMediaToHDD(TelegramApi api, TLVector<TLDialog> dialogs,
                                           Map<Integer, TLAbsChat> chatsHashMap,
@@ -114,38 +119,43 @@ public class CrawlingMethods {
             TLVector<TLAbsMessage> absMessages;
             absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
 
-            if (filesCounter < maxFiles) {
-                for (TLAbsMessage absMessage : absMessages) {
-                    MediaDownloadMethods.messageDownloadMediaToHDD(api, absMessage, maxSize, path);
-                    filesCounter++;
-                }
-            }
+
+            for (TLAbsMessage absMessage : absMessages)
+                if (filesCounter < maxFiles)
+                    if (MediaDownloadMethods.messageDownloadMediaToHDD(api, absMessage, maxSize, path) != null)
+                        filesCounter++;
+                    else break;
+
 
             System.out.println("Done");
             System.out.println();
             // sleep between transmissions to avoid flood wait
-            try {Thread.sleep(1000);} catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 
     /**
      * Writes only messages to DB
-     * @param	api  TelegramApi instance for RPC request
-     * @param   dbStorage   database instance
-     * @param   dialogs dialogs TLVector
-     * @param   chatsHashMap    chats hashmap
-     * @param   usersHashMap    users hashmap
-     * @param   messagesHashMap top messages
-     * @param   msgLimit   maximum number of retrieved messages from each dialog (0 if all )
-     * @param   maxDate max date of diapason for saving
-     * @param   minDate min date of diapason for saving
-     * @param   maxFiles maximum nuber of downloaded files
+     *
+     * @param dbStorage       database instance
+     * @param dialogs         dialogs TLVector
+     * @param chatsHashMap    chats hashmap
+     * @param usersHashMap    users hashmap
+     * @param messagesHashMap top messages
+     * @param msgLimit        maximum number of retrieved messages from each dialog (0 if all )
+     * @param maxDate         max date of diapason for saving
+     * @param minDate         min date of diapason for saving
+     * @param maxFiles        maximum nuber of downloaded files
+     * @param api             TelegramApi instance for RPC request
      */
     public static void saveOnlyMediaToDB(TelegramApi api, DBStorage dbStorage, TLVector<TLDialog> dialogs,
-                                          Map<Integer, TLAbsChat> chatsHashMap,
-                                          Map<Integer, TLAbsUser> usersHashMap,
-                                          Map<Integer, TLAbsMessage> messagesHashMap,
-                                          int msgLimit, int maxDate, int minDate, int maxFiles, int maxSize) {
+                                         Map<Integer, TLAbsChat> chatsHashMap,
+                                         Map<Integer, TLAbsUser> usersHashMap,
+                                         Map<Integer, TLAbsMessage> messagesHashMap,
+                                         int msgLimit, int maxDate, int minDate, int maxFiles, int maxSize) {
         int filesCounter = 0;
         for (TLDialog dialog : dialogs) {
 
@@ -158,48 +168,53 @@ public class CrawlingMethods {
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
-            if (exclusions.exist()){
+            if (exclusions.exist()) {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
             } else {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
             }
 
-            if (filesCounter < maxFiles) {
-                for (TLAbsMessage absMessage : absMessages) {
-                    MediaDownloadMethods.messageDownloadMediaToDB(api, dbStorage, absMessage, maxSize);
-                    filesCounter++;
-                }
-            }
+
+            for (TLAbsMessage absMessage : absMessages)
+                if (filesCounter < maxFiles)
+                    if (MediaDownloadMethods.messageDownloadMediaToDB(api, dbStorage, absMessage, maxSize) != null)
+                        filesCounter++;
+                    else break;
+
 
             System.out.println("Done");
             System.out.println();
             // sleep between transmissions to avoid flood wait
-            try {Thread.sleep(1000);} catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 
     /**
      * Writes messages and files to HDD
-     * @param	api  TelegramApi instance for RPC request
-     * @param   dbStorage   database instance
-     * @param   dialogs dialogs TLVector
-     * @param   chatsHashMap    chats hashmap
-     * @param   usersHashMap    users hashmap
-     * @param   messagesHashMap top messages
-     * @param   msgLimit   maximum number of retrieved messages from each dialog (0 if all )
-     * @param   parLimit   maximum number of retrieved participants from each dialog (0 if all)
-     * @param   filter  participants filter: 0 - recent, 1 - admins, 2 - kicked, 3 - bots, default - recent
-     * @param   maxDate max date of diapason for saving
-     * @param   minDate min date of diapason for saving
-     * @param   maxSize max allowed size of file to download
-     * @param   path    file system path
+     *
+     * @param dbStorage       database instance
+     * @param dialogs         dialogs TLVector
+     * @param chatsHashMap    chats hashmap
+     * @param usersHashMap    users hashmap
+     * @param messagesHashMap top messages
+     * @param msgLimit        maximum number of retrieved messages from each dialog (0 if all )
+     * @param parLimit        maximum number of retrieved participants from each dialog (0 if all)
+     * @param filter          participants filter: 0 - recent, 1 - admins, 2 - kicked, 3 - bots, default - recent
+     * @param maxDate         max date of diapason for saving
+     * @param minDate         min date of diapason for saving
+     * @param maxSize         max allowed size of file to download
+     * @param path            file system path
+     * @param api             TelegramApi instance for RPC request
      */
     public static void saveMessagesToDBFilesToHDD(TelegramApi api, DBStorage dbStorage, TLVector<TLDialog> dialogs,
-                                            Map<Integer, TLAbsChat> chatsHashMap,
-                                            Map<Integer, TLAbsUser> usersHashMap,
-                                            Map<Integer, TLAbsMessage> messagesHashMap,
-                                            int msgLimit, int parLimit, int filter, int maxDate,
-                                            int minDate, int maxSize, String path) {
+                                                  Map<Integer, TLAbsChat> chatsHashMap,
+                                                  Map<Integer, TLAbsUser> usersHashMap,
+                                                  Map<Integer, TLAbsMessage> messagesHashMap,
+                                                  int msgLimit, int parLimit, int filter, int maxDate,
+                                                  int minDate, int maxSize, String path) {
         for (TLDialog dialog : dialogs) {
 
             System.out.println();
@@ -221,7 +236,7 @@ public class CrawlingMethods {
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
-            if (exclusions.exist()){
+            if (exclusions.exist()) {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
             } else {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
@@ -229,16 +244,19 @@ public class CrawlingMethods {
 
             // writes messages of the dialog to "messages + [dialog_id]" table/collection/etc.
             dbStorage.setTarget(MSG_DIAL_PREF + dialog.getPeer().getId());
-            for (TLAbsMessage absMessage: absMessages){
+            for (TLAbsMessage absMessage : absMessages) {
                 String reference = MediaDownloadMethods.messageDownloadMediaToHDD(api, absMessage, maxSize, path);
-                if (reference != null){
+                if (reference != null) {
                     dbStorage.writeTLAbsMessageWithReference(absMessage, reference);
                 } else {
                     dbStorage.writeTLAbsMessage(absMessage);
                 }
             }
 
-            try {Thread.sleep(1000);} catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
         }
         // write hashmaps
         System.out.println("Writing obtained users chats, duplicates may occure");
@@ -250,24 +268,25 @@ public class CrawlingMethods {
 
     /**
      * Writes only messages to DB
-     * @param	api  TelegramApi instance for RPC request
-     * @param   dbStorage   database instance
-     * @param   dialogs dialogs TLVector
-     * @param   chatsHashMap    chats hashmap
-     * @param   usersHashMap    users hashmap
-     * @param   messagesHashMap top messages
-     * @param   msgLimit   maximum number of retrieved messages from each dialog (0 if all )
-     * @param   parLimit   maximum number of retrieved participants from each dialog (0 if all)
-     * @param   filter  participants filter: 0 - recent, 1 - admins, 2 - kicked, 3 - bots, default - recent
-     * @param   maxDate max date of diapason for saving
-     * @param   minDate min date of diapason for saving
-     * @param   maxSize max allowed size of file to download
+     *
+     * @param dbStorage       database instance
+     * @param dialogs         dialogs TLVector
+     * @param chatsHashMap    chats hashmap
+     * @param usersHashMap    users hashmap
+     * @param messagesHashMap top messages
+     * @param msgLimit        maximum number of retrieved messages from each dialog (0 if all )
+     * @param parLimit        maximum number of retrieved participants from each dialog (0 if all)
+     * @param filter          participants filter: 0 - recent, 1 - admins, 2 - kicked, 3 - bots, default - recent
+     * @param maxDate         max date of diapason for saving
+     * @param minDate         min date of diapason for saving
+     * @param maxSize         max allowed size of file to download
+     * @param api             TelegramApi instance for RPC request
      */
     public static void saveMessagesToDBFilesToDB(TelegramApi api, DBStorage dbStorage, TLVector<TLDialog> dialogs,
-                                                  Map<Integer, TLAbsChat> chatsHashMap,
-                                                  Map<Integer, TLAbsUser> usersHashMap,
-                                                  Map<Integer, TLAbsMessage> messagesHashMap,
-                                                  int msgLimit, int parLimit, int filter,
+                                                 Map<Integer, TLAbsChat> chatsHashMap,
+                                                 Map<Integer, TLAbsUser> usersHashMap,
+                                                 Map<Integer, TLAbsMessage> messagesHashMap,
+                                                 int msgLimit, int parLimit, int filter,
                                                  int maxDate, int minDate, int maxSize) {
         for (TLDialog dialog : dialogs) {
 
@@ -290,7 +309,7 @@ public class CrawlingMethods {
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
-            if (exclusions.exist()){
+            if (exclusions.exist()) {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistoryWithExclusions(api, dialog, chatsHashMap, usersHashMap, topMessage, exclusions, msgLimit, maxDate, minDate);
             } else {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
@@ -298,16 +317,19 @@ public class CrawlingMethods {
 
             // writes messages of the dialog to "messages + [dialog_id]" table/collection/etc.
             dbStorage.setTarget(MSG_DIAL_PREF + dialog.getPeer().getId());
-            for (TLAbsMessage absMessage: absMessages){
+            for (TLAbsMessage absMessage : absMessages) {
                 String reference = MediaDownloadMethods.messageDownloadMediaToDB(api, dbStorage, absMessage, maxSize);
-                if (reference != null){
+                if (reference != null) {
                     dbStorage.writeTLAbsMessageWithReference(absMessage, reference);
                 } else {
                     dbStorage.writeTLAbsMessage(absMessage);
                 }
             }
 
-            try {Thread.sleep(1000);} catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
         }
         // write hashmaps
         System.out.println("Writing obtained users chats, duplicates may occure");
@@ -319,21 +341,22 @@ public class CrawlingMethods {
 
     /**
      * Writes only voice messages to HDD
-     * @param	api  TelegramApi instance for RPC request
-     * @param   dialogs dialogs TLVector
-     * @param   chatsHashMap    chats hashmap
-     * @param   usersHashMap    users hashmap
-     * @param   messagesHashMap top messages
-     * @param   msgLimit   maximum number of retrieved messages from each dialog (0 if all )
-     * @param   maxDate max date of diapason for saving
-     * @param   minDate min date of diapason for saving
-     * @param   path    file system path
-     * @param   maxFiles maximum nuber of downloaded files
+     *
+     * @param dialogs         dialogs TLVector
+     * @param chatsHashMap    chats hashmap
+     * @param usersHashMap    users hashmap
+     * @param messagesHashMap top messages
+     * @param msgLimit        maximum number of retrieved messages from each dialog (0 if all )
+     * @param maxDate         max date of diapason for saving
+     * @param minDate         min date of diapason for saving
+     * @param path            file system path
+     * @param maxFiles        maximum nuber of downloaded files
+     * @param api             TelegramApi instance for RPC request
      */
     public static void saveOnlyVoiceMessagesToHDD(TelegramApi api, TLVector<TLDialog> dialogs,
-                                          Map<Integer, TLAbsChat> chatsHashMap, Map<Integer, TLAbsUser> usersHashMap,
-                                          Map<Integer, TLAbsMessage> messagesHashMap, int msgLimit, int maxDate,
-                                          int minDate, int maxSize, String path, int maxFiles) {
+                                                  Map<Integer, TLAbsChat> chatsHashMap, Map<Integer, TLAbsUser> usersHashMap,
+                                                  Map<Integer, TLAbsMessage> messagesHashMap, int msgLimit, int maxDate,
+                                                  int minDate, int maxSize, String path, int maxFiles) {
         int filesCounter = 0;
         for (TLDialog dialog : dialogs) {
 
@@ -347,19 +370,20 @@ public class CrawlingMethods {
             TLVector<TLAbsMessage> absMessages;
             absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
 
-            if (filesCounter < maxFiles){
-                for (TLAbsMessage absMessage: absMessages){
-                    String reference = MediaDownloadMethods.messageDownloadVoiceMessagesToHDD(api, absMessage, maxSize, path);
-                    if (reference != null && !reference.isEmpty()){
+
+            for (TLAbsMessage absMessage : absMessages)
+                if (filesCounter < maxFiles)
+                    if (MediaDownloadMethods.messageDownloadVoiceMessagesToHDD(api, absMessage, maxSize, path) != null)
                         filesCounter++;
-                    }
-                }
-            }
+                    else break;
 
             System.out.println("Done");
             System.out.println();
             // sleep between transmissions to avoid flood wait
-            try {Thread.sleep(1000);} catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 

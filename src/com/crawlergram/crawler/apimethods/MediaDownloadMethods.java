@@ -262,7 +262,7 @@ public class MediaDownloadMethods {
                 name = message.getChatId() + "_" + message.getId() + "_" + doc.getId() + "_" + doc.getDate();
                 for (TLAbsDocumentAttribute attr : docAttr) {
                     if (attr instanceof TLDocumentAttributeAudio) {
-                        return name + ".opus"; // audio message
+                        return name + ".ogg"; // audio message
                     } else if (attr instanceof TLDocumentAttributeVideo) {
                         return name + ".mp4"; // video message
                     } else if (attr instanceof TLDocumentAttributeAnimated) {
