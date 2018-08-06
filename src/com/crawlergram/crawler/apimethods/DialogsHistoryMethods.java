@@ -324,8 +324,8 @@ public class DialogsHistoryMethods {
             offId = resetOffsetsId(messages.get(messages.size() - 1));
             offDate = resetOffsetsDate(messages.get(messages.size() - 1));
             receivedMsgs = messages.size();
-            // sleep once per 10 iterations for 1 sec
-            iter = sleepOncePerNIters(iter, 10, receivedMsgs);
+            // sleep once per 10 iterations for 5 sec (sort of optimal)
+            iter = sleepOncePerNIters(iter, 10, receivedMsgs, 5000);
         }
         messages = removeExtraMessages(messages, limit);
         System.out.println("Downloaded: " + messages.size());
@@ -414,12 +414,20 @@ public class DialogsHistoryMethods {
         return tlObject;
     }
 
-    private static int sleepOncePerNIters(int iter, int n, int receivedMsgs){
+    /**
+     * Telegram sends FLOOD_WAIT_XX each 3000-ish messages
+     *
+     * @param iter counter
+     * @param n short sleep once per n iterations
+     * @param receivedMsgs prints the status
+     * @param time sleep time (ms)
+     */
+    private static int sleepOncePerNIters(int iter, int n, int receivedMsgs, int time){
         if (iter >= n){
             try {
                 iter = 1;
                 System.out.println("Downloaded: " + (receivedMsgs));
-                Thread.sleep(1000);
+                Thread.sleep(time);
             } catch (InterruptedException ignored) {}
         } else {iter++;}
         return iter;
@@ -728,7 +736,7 @@ public class DialogsHistoryMethods {
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {}
             // sleep once per 10 iterations for 1 sec
-            iter = sleepOncePerNIters(iter, 10, retrieved);
+            iter = sleepOncePerNIters(iter, 10, retrieved, 1000);
         }
         if ((users.size() > limit) && (limit != 0)){
             int delta = users.size() - limit;
@@ -741,6 +749,7 @@ public class DialogsHistoryMethods {
             channelParticipants.setParticipants(participants);
             insertIntoUsersHashMap(usersHashMap, users);
         }
+        System.out.println("Downloaded: " + channelParticipants.getCount());
         return channelParticipants;
     }
 

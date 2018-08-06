@@ -61,7 +61,7 @@ public class VoiceMessagesExtractor {
         ConsoleOutputMethods.testUsersHashMapOutputConsole(usersHashMap);
 
 
-        int msgLimit = 5000;
+        int msgLimit = 50000;
 
         TLDialog dialog = new TLDialog();
 
