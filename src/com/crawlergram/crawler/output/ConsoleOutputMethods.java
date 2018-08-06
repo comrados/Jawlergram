@@ -88,45 +88,29 @@ public class ConsoleOutputMethods {
         System.out.println();
     }
 
-    public static String testOutHashMapObjectByKey(int key , Map<Integer, TLAbsChat> chatsHashMap, Map<Integer, TLAbsUser> usersHashMap){
+    public static String getDialogFullNameWithID(int key, Map<Integer, TLAbsChat> chatsHashMap, Map<Integer, TLAbsUser> usersHashMap) {
         String out = "";
         Set<Integer> keysUsers = usersHashMap.keySet();
         Set<Integer> keysChats = chatsHashMap.keySet();
         if (keysUsers.contains(key)) {
-           out = usersHashMap.get(key).getId() + " User " + ((TLUser) usersHashMap.get(key)).getUserName() + " " +
+            out = usersHashMap.get(key).getId() + " User " + ((TLUser) usersHashMap.get(key)).getUserName() + " " +
                     ((TLUser) usersHashMap.get(key)).getFirstName() + " " + ((TLUser) usersHashMap.get(key)).getLastName() + " " + ((TLUser) usersHashMap.get(key)).getFlags();
         } else if (keysChats.contains(key)) {
             if (chatsHashMap.get(key) instanceof TLChannel) {
-                out =chatsHashMap.get(key).getId() + " Channel " + ((TLChannel) chatsHashMap.get(key)).getTitle() + " " + ((TLChannel) chatsHashMap.get(key)).getFlags();
+                out = chatsHashMap.get(key).getId() + " Channel " + ((TLChannel) chatsHashMap.get(key)).getTitle() + " " + ((TLChannel) chatsHashMap.get(key)).getFlags();
             } else if (chatsHashMap.get(key) instanceof TLChat) {
-                out =chatsHashMap.get(key).getId() + " Chat " + ((TLChat) chatsHashMap.get(key)).getTitle() + " " + ((TLChat) chatsHashMap.get(key)).getFlags();
+                out = chatsHashMap.get(key).getId() + " Chat " + ((TLChat) chatsHashMap.get(key)).getTitle() + " " + ((TLChat) chatsHashMap.get(key)).getFlags();
             } else if (chatsHashMap.get(key) instanceof TLChatForbidden) {
-                out =chatsHashMap.get(key).getId() + " ChatForbidden " + ((TLChatForbidden) chatsHashMap.get(key)).getTitle();
+                out = chatsHashMap.get(key).getId() + " ChatForbidden " + ((TLChatForbidden) chatsHashMap.get(key)).getTitle();
             } else if (chatsHashMap.get(key) instanceof TLChatEmpty) {
-                out =chatsHashMap.get(key).getId() + " ChatEmpty";
+                out = chatsHashMap.get(key).getId() + " ChatEmpty";
             } else if (chatsHashMap.get(key) instanceof TLChannelForbidden) {
-                out =chatsHashMap.get(key).getId() + " ChannelForbidden " + ((TLChannelForbidden) chatsHashMap.get(key)).getTitle();
+                out = chatsHashMap.get(key).getId() + " ChannelForbidden " + ((TLChannelForbidden) chatsHashMap.get(key)).getTitle();
             } else {
-                out =chatsHashMap.get(key).getId() + "Other";
+                out = chatsHashMap.get(key).getId() + "Other";
             }
         }
         return out;
-    }
-
-    /**
-     * Outputs message text from message to console
-     * @param	absMessage  abstract message
-     * @see TLAbsMessage
-     * @see TLMessage
-     */
-    public static void testMessageOutputConsole(TLAbsMessage absMessage) {
-        if (absMessage instanceof TLMessage) {
-            System.out.println(((TLMessage) absMessage).getMessage());
-        } else if (absMessage instanceof TLMessageService){
-            System.out.println(((TLMessageService) absMessage).getAction());
-        } else {
-            System.out.println("Empty Message");
-        }
     }
 
 }

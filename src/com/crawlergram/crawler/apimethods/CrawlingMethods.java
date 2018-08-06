@@ -8,6 +8,7 @@
 package com.crawlergram.crawler.apimethods;
 
 import com.crawlergram.crawler.output.ConsoleOutputMethods;
+import com.crawlergram.crawler.output.FileMethods;
 import org.telegram.api.chat.TLAbsChat;
 import org.telegram.api.dialog.TLDialog;
 import org.telegram.api.engine.TelegramApi;
@@ -39,15 +40,15 @@ public class CrawlingMethods {
      * @param minDate         min date of diapason for saving
      * @param api             TelegramApi instance for RPC request
      */
-    public static void saveOnlyMessages(TelegramApi api, DBStorage dbStorage, TLVector<TLDialog> dialogs,
-                                        Map<Integer, TLAbsChat> chatsHashMap,
-                                        Map<Integer, TLAbsUser> usersHashMap,
-                                        Map<Integer, TLAbsMessage> messagesHashMap,
-                                        int msgLimit, int parLimit, int filter, int maxDate, int minDate) {
+    public static void saveOnlyMessagesToDB(TelegramApi api, DBStorage dbStorage, TLVector<TLDialog> dialogs,
+                                            Map<Integer, TLAbsChat> chatsHashMap,
+                                            Map<Integer, TLAbsUser> usersHashMap,
+                                            Map<Integer, TLAbsMessage> messagesHashMap,
+                                            int msgLimit, int parLimit, int filter, int maxDate, int minDate) {
         for (TLDialog dialog : dialogs) {
 
             System.out.println();
-            System.out.println("Crawling dialog: " + ConsoleOutputMethods.testOutHashMapObjectByKey(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
+            System.out.println("Crawling dialog: " + ConsoleOutputMethods.getDialogFullNameWithID(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
@@ -111,7 +112,7 @@ public class CrawlingMethods {
         for (TLDialog dialog : dialogs) {
 
             System.out.println();
-            System.out.println("Crawling dialog: " + ConsoleOutputMethods.testOutHashMapObjectByKey(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
+            System.out.println("Crawling dialog: " + ConsoleOutputMethods.getDialogFullNameWithID(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
             System.out.println("Top message: " + dialog.getTopMessage());
 
             //reads the messages
@@ -160,7 +161,7 @@ public class CrawlingMethods {
         for (TLDialog dialog : dialogs) {
 
             System.out.println();
-            System.out.println("Crawling dialog: " + ConsoleOutputMethods.testOutHashMapObjectByKey(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
+            System.out.println("Crawling dialog: " + ConsoleOutputMethods.getDialogFullNameWithID(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
@@ -218,7 +219,7 @@ public class CrawlingMethods {
         for (TLDialog dialog : dialogs) {
 
             System.out.println();
-            System.out.println("Crawling dialog: " + ConsoleOutputMethods.testOutHashMapObjectByKey(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
+            System.out.println("Crawling dialog: " + ConsoleOutputMethods.getDialogFullNameWithID(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
@@ -291,7 +292,7 @@ public class CrawlingMethods {
         for (TLDialog dialog : dialogs) {
 
             System.out.println();
-            System.out.println("Crawling dialog: " + ConsoleOutputMethods.testOutHashMapObjectByKey(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
+            System.out.println("Crawling dialog: " + ConsoleOutputMethods.getDialogFullNameWithID(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
@@ -361,7 +362,7 @@ public class CrawlingMethods {
         for (TLDialog dialog : dialogs) {
 
             System.out.println();
-            System.out.println("Crawling dialog: " + ConsoleOutputMethods.testOutHashMapObjectByKey(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
+            System.out.println("Crawling dialog: " + ConsoleOutputMethods.getDialogFullNameWithID(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
             System.out.println("Top message: " + dialog.getTopMessage());
             System.out.println();
 
@@ -385,6 +386,52 @@ public class CrawlingMethods {
             } catch (InterruptedException ignored) {
             }
         }
+    }
+
+    /**
+     * Writes only messages to HDD as CSV-files
+     *
+     * @param path            path to save files (as CSV)
+     * @param dialogs         dialogs TLVector
+     * @param chatsHashMap    chats hashmap
+     * @param usersHashMap    users hashmap
+     * @param messagesHashMap top messages
+     * @param msgLimit        maximum number of retrieved messages from each dialog (0 if all )
+     * @param maxDate         max date of diapason for saving
+     * @param minDate         min date of diapason for saving
+     * @param api             TelegramApi instance for RPC request
+     */
+    public static void saveOnlyMessagesToHDD(TelegramApi api, TLVector<TLDialog> dialogs,
+                                             Map<Integer, TLAbsChat> chatsHashMap,
+                                             Map<Integer, TLAbsUser> usersHashMap,
+                                             Map<Integer, TLAbsMessage> messagesHashMap,
+                                             int msgLimit, int maxDate, int minDate,
+                                             String path) {
+        for (TLDialog dialog : dialogs) {
+
+            String fullName = ConsoleOutputMethods.getDialogFullNameWithID(dialog.getPeer().getId(), chatsHashMap, usersHashMap);
+
+            System.out.println();
+            System.out.println("Crawling dialog: " + fullName);
+            System.out.println("Top message: " + dialog.getTopMessage());
+
+            //reads the messages
+            TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
+            TLVector<TLAbsMessage> absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
+
+            System.out.println("Writing: " + fullName + ".csv");
+            // write here
+            FileMethods.writeMessagesToCSV(absMessages, fullName, path, ";");
+
+        }
+        // sleep between transmissions to avoid flood wait
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+
+        }
+        // write hashmaps
+        System.out.println("Done");
     }
 
 }

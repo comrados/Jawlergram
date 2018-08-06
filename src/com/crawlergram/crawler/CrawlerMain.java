@@ -104,7 +104,7 @@ public class CrawlerMain {
                     case 1:
                         printErrMessage("Saving only messages to DB");
                         initApiDoAuth();
-                        CrawlingMethods.saveOnlyMessages(api, dbStorage, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, PARTICIPANTS_LIMIT, PARTICIPANTS_FILTER, MAX_DATE, MIN_DATE);
+                        CrawlingMethods.saveOnlyMessagesToDB(api, dbStorage, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, PARTICIPANTS_LIMIT, PARTICIPANTS_FILTER, MAX_DATE, MIN_DATE);
                         break;
                     case 2:
                         printErrMessage("Saves messages to DB, files to HDD");
@@ -130,6 +130,11 @@ public class CrawlerMain {
                         printErrMessage("Saves only voice messages to HDD");
                         initApiDoAuthNoDB();
                         CrawlingMethods.saveOnlyVoiceMessagesToHDD(api, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, MAX_DATE, MIN_DATE, MAX_FILE_SIZE, FILES_PATH, FILES_LIMIT);
+                        break;
+                    case 7:
+                        printErrMessage("Saves only messages to HDD");
+                        initApiDoAuthNoDB();
+                        CrawlingMethods.saveOnlyMessagesToHDD(api, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, MAX_DATE, MIN_DATE, FILES_PATH);
                         break;
                     default:
                         printHelp("<run_type> argument " + type + " doesn't exist");

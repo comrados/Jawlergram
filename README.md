@@ -44,6 +44,8 @@ Example : `java -jar Jawlergram.jar 3 api.cfg crawler.cfg storage.cfg`
 
 `6` - Saves only voice messages to HDD.
 
+`7` - Saves only messages to HDD.
+
 ## Acknowledgments
 
   * To [Rubenlagus](https://github.com/rubenlagus) and [Onixred](https://github.com/onixred) for  [TelegramApi](https://github.com/onixred/TelegramApi).

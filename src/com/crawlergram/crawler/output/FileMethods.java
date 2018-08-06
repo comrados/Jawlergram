@@ -8,13 +8,13 @@
 package com.crawlergram.crawler.output;
 
 import org.telegram.api.file.location.TLFileLocation;
+import org.telegram.api.message.TLAbsMessage;
+import org.telegram.api.message.TLMessage;
 import org.telegram.api.photo.size.TLAbsPhotoSize;
 import org.telegram.api.photo.size.TLPhotoSize;
 import org.telegram.tl.TLVector;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class FileMethods {
 
@@ -190,6 +190,60 @@ public class FileMethods {
         String filePath = path + File.separator + name;
         checkFilePath(filePath);
         return filePath;
+    }
+
+    /**
+     * Writes messages vector to CSV file
+     *
+     * @param absMessages messages
+     * @param fullName fullName (number is used as file name)
+     * @param path path for saving
+     * @param sep separator
+     */
+    public static void writeMessagesToCSV(TLVector<TLAbsMessage> absMessages, String fullName, String path, String sep){
+        String filePath = setFileNameAndPath(fullName + ".csv", path);
+        checkFilePath(filePath);
+        try {
+            FileOutputStream fos = new FileOutputStream(new File(filePath));
+
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+
+            //header
+            bw.write("id" + sep + "date" + sep + "fromUserId" + sep + "replyToMsgId" + sep + "text");
+            bw.newLine();
+
+            // content
+            for (TLAbsMessage msg: absMessages){
+                String line = getMessageContent(msg, sep);
+                if (line != null){
+                    bw.write(line);
+                    bw.newLine();
+                    bw.flush();
+                }
+            }
+
+            bw.close();
+
+        } catch (IOException e){
+            System.err.println("Unable to write " + filePath);
+            System.err.println(e.getMessage());
+        }
+
+    }
+
+    /**
+     * Converts message content to String
+     *
+     * @param	absMessage  abstract message
+     * @param   sep         separator
+     */
+    private static String getMessageContent(TLAbsMessage absMessage, String sep) {
+        if (absMessage instanceof TLMessage) {
+            TLMessage m = (TLMessage) absMessage;
+            return m.getId() + sep + m.getDate() + sep + m.getFromId() + sep + m.getReplyToMsgId() + sep + m.getMessage().replaceAll("\\s+", " ");
+        } else {
+            return null;
+        }
     }
 
 }

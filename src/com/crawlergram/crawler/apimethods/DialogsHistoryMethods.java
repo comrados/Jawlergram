@@ -324,8 +324,9 @@ public class DialogsHistoryMethods {
             offId = resetOffsetsId(messages.get(messages.size() - 1));
             offDate = resetOffsetsDate(messages.get(messages.size() - 1));
             receivedMsgs = messages.size();
-            // sleep once per 10 iterations for 5 sec (sort of optimal)
-            iter = sleepOncePerNIters(iter, 10, receivedMsgs, 5000);
+            // sleep once per 10 iterations for 5 sec (sort of optimal) only if downloads more than 3000 messages
+            if (limit == 0 || limit > 3000)
+                iter = sleepOncePerNIters(iter, 10, receivedMsgs, 5000);
         }
         messages = removeExtraMessages(messages, limit);
         System.out.println("Downloaded: " + messages.size());
