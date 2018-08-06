@@ -67,7 +67,7 @@ public class CrawlerMain {
     private static Integer PARTICIPANTS_FILTER = 0; // participants filter: 0 - recent, 1 - admins, 2 - kicked, 3 - bots, default - recent
     private static Integer MIN_DATE = 0; // min date of message (0 if no limit)
     private static Integer MAX_DATE = 0; // max date of message (0 if no limit)
-    private static Integer MAX_FILE_SIZE = 10485760; // Maximum size of downloadable files
+    private static Integer MAX_FILE_SIZE = 8*10*1024*1024; // Maximum size of downloadable files (10 MB default)
     private static String FILES_PATH = "files"; // Path to save downloaded files
     private static Integer FILES_LIMIT = 0; // Maximum amount of files to download
 
