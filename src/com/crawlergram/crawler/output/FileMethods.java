@@ -12,7 +12,6 @@ import org.telegram.api.photo.size.TLAbsPhotoSize;
 import org.telegram.api.photo.size.TLPhotoSize;
 import org.telegram.tl.TLVector;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -111,19 +110,43 @@ public class FileMethods {
     }
 
     /**
-     * concatenates two byte arrays
+     * Concatenates two byte arrays with respect to the maximum length (removes padding).
+     *
+     *
      * @param a array
      * @param b array
      */
-    public static byte[] concatenateByteArrays(byte[] a, byte[] b) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try {
-            if (a != null){output.write(a);}
-            if (b != null){output.write(b);}
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static byte[] concatenateByteArrays(byte[] a, byte[] b, int maxSize) {
+        // nulls check
+        if (a == null){
+            if (b.length <= maxSize)
+                return b;
+            else{
+                byte[] c = new byte[maxSize];
+                System.arraycopy(b, 0, c,0,  maxSize);
+                return c;
+            }
         }
-        return output.toByteArray();
+        if (b == null){
+            return a;
+        }
+        if (a.length == maxSize){
+            return a;
+        }
+        int lengthSum= a.length + b.length;
+        if (lengthSum <= maxSize){
+            // concatenate
+            byte[]c = new byte[lengthSum];
+            System.arraycopy(a, 0, c, 0, a.length);
+            System.arraycopy(b, 0, c, a.length, b.length);
+            return c;
+        } else {
+            // concatenate & remove padding
+            byte[]c = new byte[maxSize];
+            System.arraycopy(a, 0, c, 0, a.length);
+            System.arraycopy(b, 0, c, a.length, (maxSize - a.length));
+            return c;
+        }
     }
 
     /**

@@ -138,12 +138,11 @@ public class MediaDownloadMethods {
     private static byte[] messageMediaDocumentGet(TelegramApi api, TLMessageMediaDocument mediaDocument, int maxSize){
         TLAbsDocument absDoc = mediaDocument.getDocument();
         byte[] bytes = null;
-
         if (absDoc instanceof TLDocument){
             TLDocument doc = (TLDocument) absDoc;
             TLInputDocumentFileLocation inputDocFileLoc = SetTLObjectsMethods.inputDocumentFileLocationSet(doc.getId(), doc.getAccessHash(), doc.getVersion());
             int fileDc = doc.getDcId();
-            bytes = getFileBytesLoop(api, inputDocFileLoc, fileDc, doc.getSize(), maxSize);
+            bytes = getDocBytesLoop(api, inputDocFileLoc, fileDc, doc.getSize(), maxSize);
         }
         return bytes;
     }
@@ -156,14 +155,13 @@ public class MediaDownloadMethods {
      */
     private static byte[] messageMediaPhotoGet(TelegramApi api, TLMessageMediaPhoto mediaPhoto, int maxSize){
         byte[] bytes = null;
-
         TLAbsPhoto absPhoto = mediaPhoto.getPhoto();
         if (absPhoto instanceof TLPhoto){
             TLPhoto photo = (TLPhoto) absPhoto;
             TLVector<TLAbsPhotoSize> absPhotoSizes = photo.getSizes();
             // last photo size - largest one
             TLPhotoSize photoSize = FileMethods.getLargestAvailablePhotoSize(absPhotoSizes);
-            bytes = messagePhotoSizeOutput(api, photoSize, maxSize);
+            bytes = messagePhotoBytesLoop(api, photoSize, maxSize);
         }
         return bytes;
     }
@@ -174,7 +172,7 @@ public class MediaDownloadMethods {
      * @see	TLPhotoSize
      * @see TLPhoto
      */
-    private static byte[] messagePhotoSizeOutput(TelegramApi api, TLPhotoSize photoSize, int maxSize){
+    private static byte[] messagePhotoBytesLoop(TelegramApi api, TLPhotoSize photoSize, int maxSize){
         byte[] bytes = null;
         // file location
         TLAbsFileLocation absFileLoc = photoSize.getLocation();
@@ -183,7 +181,7 @@ public class MediaDownloadMethods {
             // set location, get Dc
             int fileDc = fileLoc.getDcId();
             TLInputFileLocation inputFileLoc = SetTLObjectsMethods.inputFileLocationSet(fileLoc.getLocalId(), fileLoc.getSecret(), fileLoc.getVolumeId());
-            bytes = getFileBytesLoop(api, inputFileLoc, fileDc, photoSize.getSize(), maxSize);
+            bytes = getDocBytesLoop(api, inputFileLoc, fileDc, photoSize.getSize(), maxSize);
         }
         return bytes;
     }
@@ -196,7 +194,7 @@ public class MediaDownloadMethods {
      * @param realSize real size
      * @param maxSize threshold
      */
-    private static byte[] getFileBytesLoop(TelegramApi api, TLAbsInputFileLocation inputFileLoc, int fileDc, int realSize, int maxSize){
+    private static byte[] getDocBytesLoop(TelegramApi api, TLAbsInputFileLocation inputFileLoc, int fileDc, int realSize, int maxSize){
         byte[] bytes = null;
         if ((realSize <= maxSize) && (realSize <= 1572864000)){
             int partSize = FileMethods.getFilePartSize(realSize);
@@ -209,7 +207,7 @@ public class MediaDownloadMethods {
                     // append bytes to file
                     if (absFile instanceof TLFile){
                         TLFile file = (TLFile) absFile;
-                        bytes = FileMethods.concatenateByteArrays(bytes, file.getBytes().getData());
+                        bytes = FileMethods.concatenateByteArrays(bytes, file.getBytes().getData(), realSize);
                     }
                     offset += partSize;
                 }
