@@ -37,6 +37,8 @@ import java.util.concurrent.TimeoutException;
 
 public class MediaDownloadMethods {
 
+    private static boolean debug = true;
+
     /**
      * Gets the file name and bytes, saves to HDD, in case of success returns the resulting filepath
      * @param api api
@@ -54,7 +56,7 @@ public class MediaDownloadMethods {
                     String filePath = FileMethods.setFileNameAndPath(name, path);
                     FileMethods.writeBytesToFile(filePath, bytes);
                     out = filePath;
-                    System.err.println(((TLMessage) absMessage).getId()+" "+bytes.length + " " + name);
+                    if (debug) System.err.println(((TLMessage) absMessage).getId()+" "+bytes.length + " " + name);
                 }
             }
         }
@@ -77,7 +79,7 @@ public class MediaDownloadMethods {
                 if ((name != null) && (bytes != null)){
                     out = name;
                     dbStorage.writeFile(name, bytes);
-                    System.err.println(((TLMessage) absMessage).getId()+" "+bytes.length + " " + name);
+                    if (debug) System.err.println(((TLMessage) absMessage).getId()+" "+bytes.length + " " + name);
                 }
             }
         }
@@ -102,7 +104,7 @@ public class MediaDownloadMethods {
                     String filePath = FileMethods.setFileNameAndPath(name, path);
                     FileMethods.writeBytesToFile(filePath, bytes);
                     out = filePath;
-                    System.err.println(((TLMessage) absMessage).getId()+" "+bytes.length + " " + name);
+                    if (debug) System.err.println(((TLMessage) absMessage).getId()+" "+bytes.length + " " + name);
                 }
             }
         }

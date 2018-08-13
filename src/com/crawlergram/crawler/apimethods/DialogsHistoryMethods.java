@@ -313,7 +313,6 @@ public class DialogsHistoryMethods {
         int offDate = initOffsetsDate(messages); // offset date
         int receivedMsgs = 0; // received messages
         int iter = 1;
-        System.out.println("Downloading messages");
         while (receivedMessagesCheck(receivedMsgs, limit)) {
 
             TLRequestMessagesGetHistory getHistory = SetTLObjectsMethods.getHistoryRequestSet(dialog, chatsHashMap, usersHashMap, 100, offDate, offId);
@@ -329,7 +328,6 @@ public class DialogsHistoryMethods {
                 iter = sleepOncePerNIters(iter, 10, receivedMsgs, 5000);
         }
         messages = removeExtraMessages(messages, limit);
-        System.out.println("Downloaded: " + messages.size());
         return messages;
     }
 
@@ -531,6 +529,7 @@ public class DialogsHistoryMethods {
      * @param messagesHashMap top messages
      */
     public static TLAbsMessage getTopMessage(TLDialog dialog, Map<Integer, TLAbsMessage> messagesHashMap){
+        System.out.println("Downloading messages");
         TLAbsMessage msg = messagesHashMap.get(dialog.getPeer().getId());
         if (msg instanceof TLMessage){
             return msg;
@@ -723,7 +722,7 @@ public class DialogsHistoryMethods {
         int offset = 0;
         int retrieved = 0;
         int iter = 1;
-        System.out.println("Downloading participants");
+        System.out.println("Downloading all participants");
         while (retrieved < limit) {
             // retrieve participants
             TLRequestChannelsGetParticipants getParticipants = SetTLObjectsMethods.getChannelParticipantsRequestSet(channelFull.getId(), chatsHashMap, filter, offset);

@@ -71,6 +71,7 @@ public class CrawlingMethods {
             } else {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
             }
+            System.out.println("Downloaded: " + absMessages.size());
             // writes messages of the dialog to "messages + [dialog_id]" table/collection/etc.
             dbStorage.writeTLAbsMessages(absMessages, dialog);
 
@@ -119,6 +120,7 @@ public class CrawlingMethods {
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
             absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
+            System.out.println("Downloaded: " + absMessages.size());
 
 
             for (TLAbsMessage absMessage : absMessages)
@@ -174,6 +176,7 @@ public class CrawlingMethods {
             } else {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
             }
+            System.out.println("Downloaded: " + absMessages.size());
 
 
             for (TLAbsMessage absMessage : absMessages)
@@ -242,6 +245,7 @@ public class CrawlingMethods {
             } else {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
             }
+            System.out.println("Downloaded: " + absMessages.size());
 
             // writes messages of the dialog to "messages + [dialog_id]" table/collection/etc.
             dbStorage.setTarget(MSG_DIAL_PREF + dialog.getPeer().getId());
@@ -315,6 +319,7 @@ public class CrawlingMethods {
             } else {
                 absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
             }
+            System.out.println("Downloaded: " + absMessages.size());
 
             // writes messages of the dialog to "messages + [dialog_id]" table/collection/etc.
             dbStorage.setTarget(MSG_DIAL_PREF + dialog.getPeer().getId());
@@ -370,7 +375,7 @@ public class CrawlingMethods {
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages;
             absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
-
+            System.out.println("Downloaded: " + absMessages.size());
 
             for (TLAbsMessage absMessage : absMessages)
                 if (filesCounter < maxFiles)
@@ -418,6 +423,7 @@ public class CrawlingMethods {
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
             TLVector<TLAbsMessage> absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, maxDate, minDate);
+            System.out.println("Downloaded: " + absMessages.size());
 
             System.out.println("Writing: " + fullName + ".csv");
             // write here

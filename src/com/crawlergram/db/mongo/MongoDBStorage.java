@@ -286,14 +286,16 @@ public class MongoDBStorage implements DBStorage {
                 try {
                     collection.insertOne((Document) obj);
                 } catch (MongoException e) {
-                    System.err.println(e.getCode() + " " + e.getMessage());
+                    if (e.getCode() != 11000)
+                        System.err.println(e.getCode() + " " + e.getMessage());
                 }
             } else {
                 try {
                     Document doc = (Document) obj;
                     collection.updateOne(Filters.eq("_id", doc.get("_id")), new Document("$set", doc), new UpdateOptions().upsert(true));
                 } catch (MongoException e) {
-                    System.err.println(e.getCode() + " " + e.getMessage());
+                    if (e.getCode() != 11000)
+                        System.err.println(e.getCode() + " " + e.getMessage());
                 }
 
             }

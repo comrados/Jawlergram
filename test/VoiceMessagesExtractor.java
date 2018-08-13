@@ -23,7 +23,9 @@ public class VoiceMessagesExtractor {
     private static final String APIHASH = ""; // your api hash
     private static final String PHONENUMBER = ""; // your phone number
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
+
+        long time0 = System.currentTimeMillis();
 
         //register loggers
         LogMethods.registerLogs("logs", false);
@@ -61,32 +63,40 @@ public class VoiceMessagesExtractor {
         ConsoleOutputMethods.testUsersHashMapOutputConsole(usersHashMap);
 
 
-        int msgLimit = 50000;
+        int msgLimit = 20000;
 
         TLDialog dialog = new TLDialog();
 
         for (TLDialog d: dialogs){
-            if (d.getPeer().getId() == 1222808259){ //415770675
+            if (d.getPeer().getId() == 1155181743){ //415770675
                 dialog = d;
             }
         }
+
+        System.out.println(dialog.getTopMessage());
+
 
         TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
         TLVector<TLAbsMessage> absMessages = DialogsHistoryMethods.getWholeMessageHistory(api, dialog, chatsHashMap, usersHashMap, topMessage, msgLimit, 0, 0);
 
         int filesCounter = 0;
-        int maxFiles = 100;
 
+        long time1 = System.currentTimeMillis();
 
-            for (TLAbsMessage absMessage : absMessages) {
-                if (filesCounter < maxFiles) {
-                    if(MediaDownloadMethods.messageDownloadVoiceMessagesToHDD(api, absMessage, 8*5*1024*1024, "files") != null) filesCounter++;
-                } else {
-                    break;
-                }
+        for (TLAbsMessage absMessage : absMessages) {
+            if (MediaDownloadMethods.messageDownloadVoiceMessagesToHDD(api, absMessage, 8 * 5 * 1024 * 1024, "files") != null){
+                filesCounter++;
+                Thread.sleep(100);
             }
+        }
 
+        long time2 = System.currentTimeMillis();
 
+        System.out.println();
+        System.out.println("Messages downloaded: " + absMessages.size());
+        System.out.println("Voice messages: " + filesCounter);
+        System.out.println("Time to download messages: " + (time1-time0));
+        System.out.println("Time to download audios: " + (time2-time1));
 
         System.exit(0);
     }
