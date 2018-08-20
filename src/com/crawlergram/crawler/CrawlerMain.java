@@ -103,37 +103,37 @@ public class CrawlerMain {
                 switch (type){
                     case 1:
                         printErrMessage("Saving only messages to DB");
-                        initApiDoAuth();
+                        initApiDoAuth(true);
                         CrawlingMethods.saveOnlyMessagesToDB(api, dbStorage, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, PARTICIPANTS_LIMIT, PARTICIPANTS_FILTER, MAX_DATE, MIN_DATE);
                         break;
                     case 2:
                         printErrMessage("Saves messages to DB, files to HDD");
-                        initApiDoAuth();
+                        initApiDoAuth(true);
                         CrawlingMethods.saveMessagesToDBFilesToHDD(api, dbStorage, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, PARTICIPANTS_LIMIT, PARTICIPANTS_FILTER, MAX_DATE, MIN_DATE, MAX_FILE_SIZE, FILES_PATH);
                         break;
                     case 3:
                         printErrMessage("Saves messages to DB, files to DB");
-                        initApiDoAuth();
+                        initApiDoAuth(true);
                         CrawlingMethods.saveMessagesToDBFilesToDB(api, dbStorage, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, PARTICIPANTS_LIMIT, PARTICIPANTS_FILTER, MAX_DATE, MIN_DATE, MAX_FILE_SIZE);
                         break;
                     case 4:
                         printErrMessage("Saves only files to DB");
-                        initApiDoAuth();
+                        initApiDoAuth(true);
                         CrawlingMethods.saveOnlyMediaToDB(api, dbStorage, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, MAX_DATE, MIN_DATE, FILES_LIMIT, MAX_FILE_SIZE);
                         break;
                     case 5:
                         printErrMessage("Saves only files to HDD");
-                        initApiDoAuthNoDB();
+                        initApiDoAuth(false);
                         CrawlingMethods.saveOnlyMediaToHDD(api,dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, MAX_DATE, MIN_DATE, MAX_FILE_SIZE, FILES_PATH, FILES_LIMIT);
                         break;
                     case 6:
                         printErrMessage("Saves only voice messages to HDD");
-                        initApiDoAuthNoDB();
+                        initApiDoAuth(false);
                         CrawlingMethods.saveOnlyVoiceMessagesToHDD(api, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, MAX_DATE, MIN_DATE, MAX_FILE_SIZE, FILES_PATH, FILES_LIMIT);
                         break;
                     case 7:
                         printErrMessage("Saves only messages to HDD");
-                        initApiDoAuthNoDB();
+                        initApiDoAuth(false);
                         CrawlingMethods.saveOnlyMessagesToHDD(api, dialogs, chatsHashMap, usersHashMap, messagesHashMap, MESSAGES_LIMIT, MAX_DATE, MIN_DATE, FILES_PATH);
                         break;
                     default:
@@ -436,68 +436,43 @@ public class CrawlerMain {
         return params.size();
     }
 
-    private static void initApiDoAuth(){
+    private static void initApiDoAuth(boolean dbAuth) {
 
-        switch (TYPE.toLowerCase()){
-            case "mongodb":
-                dbStorage = new MongoDBStorage(USERNAME, DATABASE_NAME, PASSWORD, HOST, PORT, GRIDFS_BUCKET_NAME);
-                break;
-            default:
-                printErrMessage("This storage " + TYPE + " is not implemented. Read storage.cfg");
-                System.exit(1);
+        if (dbAuth)
+            switch (TYPE.toLowerCase()) {
+                case "mongodb":
+                    dbStorage = new MongoDBStorage(USERNAME, DATABASE_NAME, PASSWORD, HOST, PORT, GRIDFS_BUCKET_NAME);
+                    break;
+                default:
+                    printErrMessage("This storage " + TYPE + " is not implemented. Read storage.cfg");
+                    System.exit(1);
+            }
+
+        //register loggers (registration is preferable, otherwise - output will be in console)
+        LogMethods.registerLogs("logs", false);
+
+        // api state
+        apiState = new MemoryApiState(API_STATE_FILE);
+
+        // app info set
+        appInfo = new AppInfo(APIKEY, DEVICE_MODEL, OS, VERSION, LANG_CODE);
+
+        // init api
+        api = new TelegramApi(apiState, appInfo, apiCallback);
+
+        // set api state
+        AuthMethods.setApiState(api, apiState);
+
+        // do auth
+        AuthMethods.auth(api, apiState, APIKEY, APIHASH, PHONENUMBER, NAME, SURNAME);
+
+        // get all dialogs of user (telegram returns 100 dialogs at maximum, getting by slices)
+        DialogsHistoryMethods.getDialogsChatsUsers(api, dialogs, chatsHashMap, usersHashMap, messagesHashMap);
+
+        // output user dialogs
+        for (TLDialog dialog: dialogs){
+            System.out.println(ConsoleOutputMethods.getDialogFullNameWithID(dialog.getPeer().getId(), chatsHashMap, usersHashMap));
         }
-
-        //register loggers (registration is preferable, otherwise - output will be in console)
-        LogMethods.registerLogs("logs", false);
-
-        // api state
-        apiState = new MemoryApiState(API_STATE_FILE);
-
-        // app info set
-        appInfo = new AppInfo(APIKEY, DEVICE_MODEL, OS, VERSION, LANG_CODE);
-
-        // init api
-        api = new TelegramApi(apiState, appInfo, apiCallback);
-
-        // set api state
-        AuthMethods.setApiState(api, apiState);
-
-        // do auth
-        AuthMethods.auth(api, apiState, APIKEY, APIHASH, PHONENUMBER, NAME, SURNAME);
-
-        // get all dialogs of user (telegram returns 100 dialogs at maximum, getting by slices)
-        DialogsHistoryMethods.getDialogsChatsUsers(api, dialogs, chatsHashMap, usersHashMap, messagesHashMap);
-
-        // output to console
-        ConsoleOutputMethods.testChatsHashMapOutputConsole(chatsHashMap);
-        ConsoleOutputMethods.testUsersHashMapOutputConsole(usersHashMap);
-    }
-
-    private static void initApiDoAuthNoDB(){
-        //register loggers (registration is preferable, otherwise - output will be in console)
-        LogMethods.registerLogs("logs", false);
-
-        // api state
-        apiState = new MemoryApiState(API_STATE_FILE);
-
-        // app info set
-        appInfo = new AppInfo(APIKEY, DEVICE_MODEL, OS, VERSION, LANG_CODE);
-
-        // init api
-        api = new TelegramApi(apiState, appInfo, apiCallback);
-
-        // set api state
-        AuthMethods.setApiState(api, apiState);
-
-        // do auth
-        AuthMethods.auth(api, apiState, APIKEY, APIHASH, PHONENUMBER, NAME, SURNAME);
-
-        // get all dialogs of user (telegram returns 100 dialogs at maximum, getting by slices)
-        DialogsHistoryMethods.getDialogsChatsUsers(api, dialogs, chatsHashMap, usersHashMap, messagesHashMap);
-
-        // output to console
-        ConsoleOutputMethods.testChatsHashMapOutputConsole(chatsHashMap);
-        ConsoleOutputMethods.testUsersHashMapOutputConsole(usersHashMap);
     }
 
 }

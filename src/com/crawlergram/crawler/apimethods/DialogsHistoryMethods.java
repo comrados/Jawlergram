@@ -722,7 +722,7 @@ public class DialogsHistoryMethods {
         int offset = 0;
         int retrieved = 0;
         int iter = 1;
-        System.out.println("Downloading all participants");
+        System.out.println("Downloading all participants (may be restricted by channel settings)");
         while (retrieved < limit) {
             // retrieve participants
             TLRequestChannelsGetParticipants getParticipants = SetTLObjectsMethods.getChannelParticipantsRequestSet(channelFull.getId(), chatsHashMap, filter, offset);
