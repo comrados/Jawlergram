@@ -52,6 +52,7 @@ public class CrawlingMethods {
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
+            if (exclusions.exist()) System.out.println(("Top DB message: " + exclusions.getMaxId()));
 
             //reads full dialog info
             TLObject fullDialog = DialogsHistoryMethods.getFullDialog(api, dialog, chatsHashMap, usersHashMap);
@@ -167,6 +168,7 @@ public class CrawlingMethods {
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
+            if (exclusions.exist()) System.out.println(("Top DB message: " + exclusions.getMaxId()));
 
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
@@ -226,6 +228,7 @@ public class CrawlingMethods {
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
+            if (exclusions.exist()) System.out.println(("Top DB message: " + exclusions.getMaxId()));
 
             //reads full dialog info
             TLObject fullDialog = DialogsHistoryMethods.getFullDialog(api, dialog, chatsHashMap, usersHashMap);
@@ -300,6 +303,7 @@ public class CrawlingMethods {
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
+            if (exclusions.exist()) System.out.println(("Top DB message: " + exclusions.getMaxId()));
 
             //reads full dialog info
             TLObject fullDialog = DialogsHistoryMethods.getFullDialog(api, dialog, chatsHashMap, usersHashMap);
