@@ -52,17 +52,17 @@ public class CrawlingMethods {
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
-            if (exclusions.exist()) System.out.println(("Top DB message: " + exclusions.getMaxId()));
+            if (exclusions.exist()){
+                System.out.println("Top DB message: " + exclusions.getMaxId());
+                int count = dialog.getTopMessage() - exclusions.getMaxId();
+                System.out.println("Downloading approx. " + (count > 0 ? count : 0) + " messages");
+            }
+
 
             //reads full dialog info
             TLObject fullDialog = DialogsHistoryMethods.getFullDialog(api, dialog, chatsHashMap, usersHashMap);
             //writes full dialog info
             dbStorage.writeFullDialog(fullDialog, chatsHashMap, usersHashMap);
-
-            //reads participants
-            TLObject participants = DialogsHistoryMethods.getParticipants(api, fullDialog, chatsHashMap, usersHashMap, parLimit, filter);
-            // writes participants of the dialog to "messages + [dialog_id]" table/collection/etc.
-            dbStorage.writeParticipants(participants, dialog);
 
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
@@ -75,6 +75,11 @@ public class CrawlingMethods {
             System.out.println("Downloaded: " + absMessages.size());
             // writes messages of the dialog to "messages + [dialog_id]" table/collection/etc.
             dbStorage.writeTLAbsMessages(absMessages, dialog);
+
+            //reads participants
+            TLObject participants = DialogsHistoryMethods.getParticipants(api, fullDialog, chatsHashMap, usersHashMap, parLimit, filter);
+            // writes participants of the dialog to "messages + [dialog_id]" table/collection/etc.
+            dbStorage.writeParticipants(participants, dialog);
 
             // sleep between transmissions to avoid flood wait
             try {
@@ -168,7 +173,11 @@ public class CrawlingMethods {
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
-            if (exclusions.exist()) System.out.println(("Top DB message: " + exclusions.getMaxId()));
+            if (exclusions.exist()){
+                System.out.println("Top DB message: " + exclusions.getMaxId());
+                int count = dialog.getTopMessage() - exclusions.getMaxId();
+                System.out.println("Downloading approx. " + (count > 0 ? count : 0) + " messages");
+            }
 
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
@@ -228,17 +237,16 @@ public class CrawlingMethods {
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
-            if (exclusions.exist()) System.out.println(("Top DB message: " + exclusions.getMaxId()));
+            if (exclusions.exist()){
+                System.out.println("Top DB message: " + exclusions.getMaxId());
+                int count = dialog.getTopMessage() - exclusions.getMaxId();
+                System.out.println("Downloading approx. " + (count > 0 ? count : 0) + " messages");
+            }
 
             //reads full dialog info
             TLObject fullDialog = DialogsHistoryMethods.getFullDialog(api, dialog, chatsHashMap, usersHashMap);
             //writes full dialog info
             dbStorage.writeFullDialog(fullDialog, chatsHashMap, usersHashMap);
-
-            //reads participants
-            TLObject participants = DialogsHistoryMethods.getParticipants(api, fullDialog, chatsHashMap, usersHashMap, parLimit, filter);
-            // writes participants of the dialog to "messages + [dialog_id]" table/collection/etc.
-            dbStorage.writeParticipants(participants, dialog);
 
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
@@ -260,6 +268,11 @@ public class CrawlingMethods {
                     dbStorage.writeTLAbsMessage(absMessage);
                 }
             }
+
+            //reads participants
+            TLObject participants = DialogsHistoryMethods.getParticipants(api, fullDialog, chatsHashMap, usersHashMap, parLimit, filter);
+            // writes participants of the dialog to "messages + [dialog_id]" table/collection/etc.
+            dbStorage.writeParticipants(participants, dialog);
 
             try {
                 Thread.sleep(1000);
@@ -303,17 +316,16 @@ public class CrawlingMethods {
             System.out.println("Top message: " + dialog.getTopMessage());
 
             MessageHistoryExclusions exclusions = new MessageHistoryExclusions(dbStorage, dialog);
-            if (exclusions.exist()) System.out.println(("Top DB message: " + exclusions.getMaxId()));
+            if (exclusions.exist()){
+                System.out.println("Top DB message: " + exclusions.getMaxId());
+                int count = dialog.getTopMessage() - exclusions.getMaxId();
+                System.out.println("Downloading approx. " + (count > 0 ? count : 0) + " messages");
+            }
 
             //reads full dialog info
             TLObject fullDialog = DialogsHistoryMethods.getFullDialog(api, dialog, chatsHashMap, usersHashMap);
             //writes full dialog info
             dbStorage.writeFullDialog(fullDialog, chatsHashMap, usersHashMap);
-
-            //reads participants
-            TLObject participants = DialogsHistoryMethods.getParticipants(api, fullDialog, chatsHashMap, usersHashMap, parLimit, filter);
-            // writes participants of the dialog to "messages + [dialog_id]" table/collection/etc.
-            dbStorage.writeParticipants(participants, dialog);
 
             //reads the messages
             TLAbsMessage topMessage = DialogsHistoryMethods.getTopMessage(dialog, messagesHashMap);
@@ -335,6 +347,11 @@ public class CrawlingMethods {
                     dbStorage.writeTLAbsMessage(absMessage);
                 }
             }
+
+            //reads participants
+            TLObject participants = DialogsHistoryMethods.getParticipants(api, fullDialog, chatsHashMap, usersHashMap, parLimit, filter);
+            // writes participants of the dialog to "messages + [dialog_id]" table/collection/etc.
+            dbStorage.writeParticipants(participants, dialog);
 
             try {
                 Thread.sleep(1000);

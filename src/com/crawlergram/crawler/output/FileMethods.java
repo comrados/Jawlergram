@@ -202,7 +202,6 @@ public class FileMethods {
      */
     public static void writeMessagesToCSV(TLVector<TLAbsMessage> absMessages, String fullName, String path, String sep){
         String filePath = setFileNameAndPath(fullName + ".csv", path);
-        checkFilePath(filePath);
         try {
             FileOutputStream fos = new FileOutputStream(new File(filePath));
 
