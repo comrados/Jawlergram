@@ -728,13 +728,13 @@ public class TLObjectsToMongoMethods {
                     .append("charge", tlPaymentChargeToDocument(((TLMessageActionPaymentSentMe) ama).getCharge()))
                     .append("info",tlPaymentRequestedInfoToDocument(((TLMessageActionPaymentSentMe) ama).getInfo()));
         } else if (ama instanceof TLMessageActionPhoneCall){
-            return new Document("class", "MessageAction")
+            return new Document("class", "MessageActionPhoneCall")
                     .append("callId",((TLMessageActionPhoneCall) ama).getCallId())
                     .append("duration",((TLMessageActionPhoneCall) ama).getDuration())
                     .append("flags",((TLMessageActionPhoneCall) ama).getFlags())
                     .append("reason", tlAbsPhoneCallDiscardReasonToDocument(((TLMessageActionPhoneCall) ama).getReason()));
         } else if (ama instanceof TLMessageActionPinMessage){
-            return new Document("class", "MessageAction");
+            return new Document("class", "MessageActionPinMessage");
         } else{
             return null;
         }

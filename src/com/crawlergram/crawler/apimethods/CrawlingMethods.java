@@ -55,7 +55,7 @@ public class CrawlingMethods {
             if (exclusions.exist()){
                 System.out.println("Top DB message: " + exclusions.getMaxId());
                 int count = dialog.getTopMessage() - exclusions.getMaxId();
-                System.out.println("Downloading approx. " + (count > 0 ? count : 0) + " messages");
+                System.out.println("Downloading at most " + (count > 0 ? count : 0) + " messages");
             }
 
 
@@ -176,7 +176,7 @@ public class CrawlingMethods {
             if (exclusions.exist()){
                 System.out.println("Top DB message: " + exclusions.getMaxId());
                 int count = dialog.getTopMessage() - exclusions.getMaxId();
-                System.out.println("Downloading approx. " + (count > 0 ? count : 0) + " messages");
+                System.out.println("Downloading at most " + (count > 0 ? count : 0) + " messages");
             }
 
             //reads the messages
@@ -240,7 +240,7 @@ public class CrawlingMethods {
             if (exclusions.exist()){
                 System.out.println("Top DB message: " + exclusions.getMaxId());
                 int count = dialog.getTopMessage() - exclusions.getMaxId();
-                System.out.println("Downloading approx. " + (count > 0 ? count : 0) + " messages");
+                System.out.println("Downloading at most " + (count > 0 ? count : 0) + " messages");
             }
 
             //reads full dialog info
@@ -319,7 +319,7 @@ public class CrawlingMethods {
             if (exclusions.exist()){
                 System.out.println("Top DB message: " + exclusions.getMaxId());
                 int count = dialog.getTopMessage() - exclusions.getMaxId();
-                System.out.println("Downloading approx. " + (count > 0 ? count : 0) + " messages");
+                System.out.println("Downloading at most " + (count > 0 ? count : 0) + " messages");
             }
 
             //reads full dialog info
