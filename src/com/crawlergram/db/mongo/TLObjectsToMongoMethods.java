@@ -523,7 +523,7 @@ public class TLObjectsToMongoMethods {
 
         } else if (amm instanceof TLMessageMediaVenue) {
             return new Document("class", "MessageMediaVenue")
-                    .append("id", ((TLMessageMediaVenue) amm).getVenue_id())
+                    .append("_id", ((TLMessageMediaVenue) amm).getVenue_id())
                     .append("address", ((TLMessageMediaVenue) amm).getAddress())
                     .append("provider", ((TLMessageMediaVenue) amm).getProvider())
                     .append("title", ((TLMessageMediaVenue) amm).getTitle())
