@@ -689,7 +689,7 @@ public class TLObjectsToMongoMethods {
             return new Document("class", "MessageActionChatAddUser")
                     .append("users", tlIntVectorToList(((TLMessageActionChatAddUser) ama).getUsers()));
         } else if (ama instanceof TLMessageActionChatCreate){
-            return new Document("class", "MessageAction")
+            return new Document("class", "MessageActionChatCreate")
                     .append("title",((TLMessageActionChatCreate) ama).getTitle())
                     .append("users", tlIntVectorToList(((TLMessageActionChatCreate) ama).getUsers()));
         } else if (ama instanceof TLMessageActionChatDeletePhoto){
