@@ -86,7 +86,7 @@ public class MessagesExtractor {
 
         System.out.println("Writing: " + dialog.getPeer().getId() + ".csv");
         // write here
-        FileMethods.writeMessagesToCSV(absMessages, fullName, "texts", ";");
+        FileMethods.writeMessagesToCSV(absMessages, String.valueOf(dialog.getPeer().getId()), "texts", ";");
 
 
         System.exit(0);
