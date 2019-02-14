@@ -448,7 +448,7 @@ public class CrawlingMethods {
 
             System.out.println("Writing: " + fullName + ".csv");
             // write here
-            FileMethods.writeMessagesToCSV(absMessages, fullName, path, ";");
+            FileMethods.writeMessagesToCSV(absMessages, String.valueOf(dialog.getPeer().getId()), path, ";");
 
         }
         // sleep between transmissions to avoid flood wait
