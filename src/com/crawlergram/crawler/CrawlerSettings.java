@@ -366,10 +366,10 @@ public class CrawlerSettings {
      * Constructor with dbStorage
      *
      * @param apiCfgPath api cfg-file path
-     * @param CrawlerCfgPath crawler cfg-file path
+     * @param crawlerCfgPath crawler cfg-file path
      * @param dbCfgPath db cfg-file path
      */
-    public CrawlerSettings(String apiCfgPath, String CrawlerCfgPath, String dbCfgPath){
+    public CrawlerSettings(String apiCfgPath, String crawlerCfgPath, String dbCfgPath){
         try {
             // api 7 mandatory params
             if (readApiCfg(apiCfgPath) < 7) {
@@ -377,7 +377,7 @@ public class CrawlerSettings {
                 System.exit(1);
             }
             // crawler 0 mandatory params
-            readCrawlerCfg(CrawlerCfgPath);
+            readCrawlerCfg(crawlerCfgPath);
             // storage 6 mandatory params
             if (readStorageCfg(dbCfgPath) < 6) {
                 printErrMessage("Not enough mandatory parameters in Storage configuration");

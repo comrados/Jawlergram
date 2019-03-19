@@ -6,7 +6,7 @@
  */
 
 import com.crawlergram.crawler.CrawlerSettings;
-import com.crawlergram.crawler.CrawlingTypes;
+import com.crawlergram.crawler.TelegramCrawler;
 
 public class CrawlerTest {
 
@@ -14,7 +14,9 @@ public class CrawlerTest {
 
         CrawlerSettings cs = new CrawlerSettings("res/api.cfg", "res/crawler.cfg", "res/storage.cfg");
 
-        CrawlingTypes.saveOnlyMessagesToHDD(cs);
+        TelegramCrawler tc = new TelegramCrawler(cs);
+
+        tc.saveOnlyMessagesToHDD();
 
         System.exit(0);
 
